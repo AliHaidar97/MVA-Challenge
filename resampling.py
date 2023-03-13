@@ -37,9 +37,20 @@ class DistributionResampler():
         k = np.sum(k,axis=1)
         k = np.abs(k) 
         '''
-        print(np.array(X_test[self.column]).shape)
-        model = KLIEP(Xt=np.array(X_test[self.column]), kernel="rbf", gamma=[0.01], random_state=0)
-        weights= model.fit_weights(np.array(X_train[self.column]), np.array(X_test[self.column]))
+        
+        #Country 0 
+        weights = np.zeros(len(X_train))
+        mask_train = (X_train['COUNTRY'] == 0)
+        mask_test = (X_test['COUNTRY'] == 0)
+        
+        model = KLIEP(Xt=np.array(X_test[mask_test][self.column]), kernel="rbf", gamma=[ 1], random_state=0)
+        weights[mask_train] = model.fit_weights(np.array(X_train[mask_train][self.column]), np.array(X_test[mask_test][self.column]))
+        
+        mask_train = (X_train['COUNTRY'] == 1)
+        mask_test = (X_test['COUNTRY'] == 1)
+        
+        model = KLIEP(Xt=np.array(X_test[mask_test][self.column]), kernel="rbf", gamma=[1], random_state=0)
+        weights[mask_train] = model.fit_weights(np.array(X_train[mask_train][self.column]), np.array(X_test[mask_test][self.column]))
     
 
         self.weight = weights
